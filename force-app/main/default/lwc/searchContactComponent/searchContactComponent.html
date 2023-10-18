@@ -1,0 +1,397 @@
+<template>
+  <div class="slds-var-p-around_medium slds-text-align_center">
+    <label class="slds-form-element__label" for="searchInput">
+      <h3>Search Contacts</h3>
+    </label>
+    <input
+      type="text"
+      id="searchInput"
+      value={searchValue}
+      oninput={handleSearchEvent}
+    />
+    <button class="slds-button slds-button_brand" onclick={searchContacts}>
+      <label>Search</label>
+    </button>
+  </div>
+
+  <template if:true={contacts}>
+    <ul class="slds-list_horizontal slds-wrap">
+      <template for:each={contacts} for:item="contact">
+        <li
+          key={contact.Id}
+          class="slds-col slds-size_1-of-3 slds-var-p-around_medium"
+        >
+          <article
+            class="slds-card"
+            style="
+              background-color: rgba(255, 255, 255, 0.8);
+              text-align: center;"
+          >
+            <div class="slds-card__body">
+              <h3 class="slds-text-heading_medium slds-var-p-bottom_small">
+                {contact.First_Name__c} {contact.Last_Name__c}
+              </h3>
+              <div class="slds-button-group" role="group">
+                <lightning-button
+                  class="slds-button slds-button_neutral"
+                  label="View Info"
+                  onclick={handleViewClick}
+                  value={contact.Id}
+                ></lightning-button>
+                <lightning-button
+                  class="slds-button slds-button_outline-brand"
+                  label="Edit"
+                  onclick={handleEditClick}
+                  value={contact.Id}
+                ></lightning-button>
+                <lightning-button
+                  class="slds-button slds-button_text-destructive"
+                  label="Delete"
+                  onclick={handleDeleteClick}
+                  value={contact.Id}
+                ></lightning-button>
+              </div>
+            </div>
+          </article>
+        </li>
+      </template>
+    </ul>
+  </template>
+
+  <template if:true={isModalOpen}> </template>
+
+  <div class="slds-var-p-around_medium slds-text-align_center">
+    <h2 class="slds-text-heading_large slds-text-color_default">
+      Upload New Contact
+    </h2>
+    <div class="slds-var-m-top_medium">
+      <template if:false={isFormVisible}>
+        <button class="slds-button slds-button_brand" onclick={showForm}>
+          <svg
+            class="slds-button__icon slds-button__icon_left"
+            aria-hidden="true"
+          >
+            <use
+              xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#add"
+            ></use>
+          </svg>
+          Add New Contact
+        </button>
+      </template>
+    </div>
+  </div>
+
+  <template if:true={isFormVisible}>
+    <div class="slds-var-p-around_medium slds-text-align_center">
+      <div
+        class="slds-box slds-theme_default slds-var-p-around_small"
+        style="background-color: rgba(255, 255, 255, 0.8)"
+      >
+        <div class="slds-form">
+          <div class="slds-form-element">
+            <div class="custom-label-background">
+              <label class="slds-form-element__label" for="newContactFirstName"
+                >First Name</label
+              >
+            </div>
+            <div class="slds-form-element__control">
+              <label>
+                <input
+                  type="text"
+                  id="First_Name__c"
+                  value={newContact.First_Name__c}
+                  oninput={handleInputChange}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <div class="custom-label-background">
+              <label class="slds-form-element__label" for="newContactLastName"
+                >Last Name</label
+              >
+            </div>
+            <div class="slds-form-element__control">
+              <label>
+                <input
+                  type="text"
+                  id="Last_Name__c"
+                  value={newContact.Last_Name__c}
+                  oninput={handleInputChange}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <div class="custom-label-background">
+              <label class="slds-form-element__label" for="newContactEmail"
+                >Email</label
+              >
+            </div>
+            <div class="slds-form-element__control">
+              <label>
+                <input
+                  type="email"
+                  id="Mail__c"
+                  value={newContact.Mail__c}
+                  oninput={handleInputChange}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <div class="custom-label-background">
+              <label class="slds-form-element__label" for="newContactPhone"
+                >Phone</label
+              >
+            </div>
+            <div class="slds-form-element__control">
+              <label>
+                <input
+                  type="tel"
+                  id="Phone__c"
+                  value={newContact.Phone__c}
+                  oninput={handleInputChange}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="slds-form-element">
+            <div class="custom-label-background">
+              <label class="slds-form-element__label" for="newAddress"
+                >Address</label
+              >
+            </div>
+            <div class="slds-form-element__control">
+              <label>
+                <input
+                  type="text"
+                  id="Address__c"
+                  value={newContact.Address__c}
+                  oninput={handleInputChange}
+                />
+              </label>
+            </div>
+          </div>
+          <div class="slds-form-element slds-var-p-top_medium">
+            <button
+              class="slds-button slds-button_brand"
+              onclick={handleUploadContact}
+            >
+              <svg
+                class="slds-button__icon slds-button__icon_left"
+                aria-hidden="true"
+              >
+                <use
+                  xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#upload"
+                ></use>
+              </svg>
+              Upload Contact
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <template if:true={isModalOpen}>
+    <div class="slds-modal_medium">
+      <div class="slds-modal slds-fade-in-open custom-modal">
+        <div
+          class="slds-box slds-theme_default"
+          style="max-height: 70vh; overflow-y: auto"
+        >
+          <h2
+            class="slds-text-heading_large slds-text-color_default slds-var-p-around_medium"
+          >
+            Contact Details
+          </h2>
+          <div class="slds-var-p-around_medium">
+            <template if:true={selectedContact}>
+              <div>
+                <p
+                  class="slds-text-heading_medium slds-var-p-bottom_small slds-text-color_default slds-text-heading_small"
+                >
+                  Name:
+                </p>
+                <p class="slds-text-heading_small">
+                  {selectedContact.First_Name__c} {selectedContact.Last_Name__c}
+                </p>
+
+                <p
+                  class="slds-text-heading_small slds-var-p-bottom_small slds-text-color_default slds-text-heading_small"
+                >
+                  Email:
+                </p>
+                <p class="slds-text-heading_small">{selectedContact.Mail__c}</p>
+
+                <p
+                  class="slds-text-heading_small slds-var-p-bottom_small slds-text-color_default slds-text-heading_small"
+                >
+                  Phone:
+                </p>
+                <p class="slds-text-heading_small">{selectedContact.Phone__c}</p>
+
+                <p
+                  class="slds-text-heading_small slds-var-p-bottom_small slds-text-color_default slds-text-heading_small"
+                >
+                  Address:
+                </p>
+                <p class="slds-text-heading_small">{selectedContact.Address__c}</p>
+              </div>
+            </template>
+          </div>
+          <footer class="slds-modal__footer slds-align_absolute-center">
+            <lightning-button
+              label="Close"
+              variant="neutral"
+              onclick={closeModal}
+            ></lightning-button>
+          </footer>
+        </div>
+      </div>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+  </template>
+
+  <template if:true={isEditModalOpen}>
+    <div class="slds-modal_medium">
+      <div class="slds-modal slds-fade-in-open custom-modal">
+        <div class="slds-box slds-theme_default custom-modal-box">
+          <h2
+            class="slds-text-heading_large slds-text-color_default slds-var-p-around_medium"
+          >
+            Edit Contact
+          </h2>
+          <div class="slds-var-p-around_medium">
+            <template if:true={editedContact}>
+              <div class="slds-form">
+                <div
+                  class="slds-form-element slds-var-p-bottom_medium custom-form-element"
+                >
+                  <label
+                    class="slds-form-element__label"
+                    for="editContactFirstName"
+                    >First Name</label
+                  >
+                  <div class="slds-form-element__control">
+                    <label>
+                      <input
+                        type="text"
+                        id="edit_First_Name__c"
+                        value={editedContact.First_Name__c}
+                        oninput={handleEditInputChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-form-element slds-var-p-bottom_medium custom-form-element"
+                >
+                  <label
+                    class="slds-form-element__label"
+                    for="editContactLastName"
+                    >Last Name</label
+                  >
+                  <div class="slds-form-element__control">
+                    <label>
+                      <input
+                        type="text"
+                        id="edit_Last_Name__c"
+                        value={editedContact.Last_Name__c}
+                        oninput={handleEditInputChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-form-element slds-var-p-bottom_medium custom-form-element"
+                >
+                  <label class="slds-form-element__label" for="editContactEmail"
+                    >Email</label
+                  >
+                  <div class="slds-form-element__control">
+                    <label>
+                      <input
+                        type="email"
+                        id="edit_Mail__c"
+                        value={editedContact.Mail__c}
+                        oninput={handleEditInputChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-form-element slds-var-p-bottom_medium custom-form-element"
+                >
+                  <label class="slds-form-element__label" for="editContactPhone"
+                    >Phone</label
+                  >
+                  <div class="slds-form-element__control">
+                    <label>
+                      <input
+                        type="tel"
+                        id="edit_Phone__c"
+                        value={editedContact.Phone__c}
+                        oninput={handleEditInputChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-form-element slds-var-p-bottom_medium custom-form-element"
+                >
+                  <label
+                    class="slds-form-element__label"
+                    for="editContactAddress"
+                    >Address</label
+                  >
+                  <div class="slds-form-element__control">
+                    <label>
+                      <input
+                        type="text"
+                        id="edit_Address__c"
+                        value={editedContact.Address__c}
+                        oninput={handleEditInputChange}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div
+                  class="slds-form-element slds-var-p-top_medium slds-text-align_center"
+                >
+                  <button
+                    class="slds-button slds-button_brand custom-form-button"
+                    onclick={handleSaveContact}
+                  >
+                    <svg
+                      class="slds-button__icon slds-button__icon_left"
+                      aria-hidden="true"
+                    >
+                      <use
+                        xlink:href="/assets/icons/utility-sprite/svg/symbols.svg#upload"
+                      ></use>
+                    </svg>
+                    Update Contact
+                  </button>
+                  <button
+                    class="slds-button slds-button_neutral custom-form-button"
+                    onclick={closeEditModal}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>
+  </template>
+</template>
